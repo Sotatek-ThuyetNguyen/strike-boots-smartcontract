@@ -75,8 +75,8 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
     // Info of each user that stakes LP tokens.
     mapping(uint256 => mapping(address => UserInfo)) public userInfo;
     // claimable time limit for base reward
-    uint256 public claimBaseRewardTime = 1 hours;
-    uint256 public unstakableTime = 2 hours;
+    uint256 public claimBaseRewardTime = 10 minutes;
+    uint256 public unstakableTime = 20 minutes;
     uint256 public initialBoostMultiplier = 40;
     uint256 public boostMultiplierFactor = 20;
 
@@ -90,7 +90,7 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
     // Boosted with NFT or not
     mapping (uint256 => bool) public isBoosted;
     // claimable time limit for boost reward
-    uint256 public claimBoostRewardTime = 1 hours * 30;
+    uint256 public claimBoostRewardTime = 1 minutes * 30;
     // boosted user list
     mapping(uint256 => address[]) private boostedUsers;
 
@@ -142,14 +142,17 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
     }
 
     function setBaseRewardTime(uint256 _time) external onlyOwner {
+        massUpdatePools();
         claimBaseRewardTime = _time;
     }
 
     function setUnstakeTime(uint256 _time) external onlyOwner {
+        massUpdatePools();
         unstakableTime = _time;
     }
 
     function setBoostRewardTime(uint256 _time) external onlyOwner {
+        massUpdatePools();
         claimBoostRewardTime = _time;
     }
 
