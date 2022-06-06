@@ -75,22 +75,22 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
     // Info of each user that stakes LP tokens.
     mapping(uint256 => mapping(address => UserInfo)) public userInfo;
     // claimable time limit for base reward
-    uint256 public claimBaseRewardTime = 1 hours;
-    uint256 public unstakableTime = 2 hours;
-    uint256 public initialBoostMultiplier = 40;
-    uint256 public boostMultiplierFactor = 20;
+    uint256 public claimBaseRewardTime = 1 days;
+    uint256 public unstakableTime = 2 days;
+    uint256 public initialBoostMultiplier = 20;
+    uint256 public boostMultiplierFactor = 10;
 
     // Boosting Part
     // Minimum vaild boost NFT count
     uint16 public minimumValidBoostCount = 1;
     // Maximum boost NFT count
-    uint16 public maximumBoostCount = 10;
+    uint16 public maximumBoostCount = 20;
     // NFT contract for boosting
     IBoostToken public boostFactor;
     // Boosted with NFT or not
     mapping (uint256 => bool) public isBoosted;
     // claimable time limit for boost reward
-    uint256 public claimBoostRewardTime = 1 hours * 30;
+    uint256 public claimBoostRewardTime = 30 days;
     // boosted user list
     mapping(uint256 => address[]) private boostedUsers;
 
@@ -141,17 +141,6 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
         return poolInfo.length;
     }
 
-    function setBaseRewardTime(uint256 _time) external onlyOwner {
-        claimBaseRewardTime = _time;
-    }
-
-    function setUnstakeTime(uint256 _time) external onlyOwner {
-        unstakableTime = _time;
-    }
-
-    function setBoostRewardTime(uint256 _time) external onlyOwner {
-        claimBoostRewardTime = _time;
-    }
 
     function getPoolInfo(uint _pid) external view returns (
         IERC20 lpToken,
