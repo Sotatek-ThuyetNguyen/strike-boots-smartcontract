@@ -5,17 +5,17 @@ pragma solidity 0.6.12;
 import "./interfaces/IBoostToken.sol";
 import "./interfaces/IERC721Receiver.sol";
 import "./interfaces/IERC20.sol";
-import "./interfaces/IVANN.sol";
+import "./interfaces/IVStrike.sol";
 import "./libraries/SafeERC20.sol";
 import "./libraries/EnumerableSet.sol";
 import "./libraries/SafeMath.sol";
 import "./libraries/Ownable.sol";
 import "./libraries/ReentrancyGuard.sol";
 
-// AnnexFarm is the master of Farm.
+// StrikeFarm is the master of Farm.
 //
 // Note that it's ownable and the owner wields tremendous power. The ownership
-// will be transferred to a governance smart contract once ANN is sufficiently
+// will be transferred to a governance smart contract once STRIKE is sufficiently
 // distributed and the community can show to govern itself.
 //
 // Have fun reading it. Hopefully it's bug-free. God bless.
@@ -29,7 +29,7 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
         uint256 rewardDebt; // Reward debt. See explanation below.
         uint256 depositedDate; // Latest deposited date
         //
-        // We do some fancy math here. Basically, any point in time, the amount of ANNs
+        // We do some fancy math here. Basically, any point in time, the amount of STRIKEs
         // entitled to a user but is pending to be distributed is:
         //
         //   pending reward = (user.amount * pool.accRewardPerShare) - user.rewardDebt
@@ -48,30 +48,30 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
     // Info of each pool.
     struct PoolInfo {
         IERC20 lpToken; // Address of LP token contract.
-        uint256 allocPoint; // How many allocation points assigned to this pool. ANNs to distribute per block.
-        uint256 lastRewardBlock; // Last block number that ANNs distribution occurs.
-        uint256 accRewardPerShare; // Accumulated ANNs per share, times 1e12. See below.
+        uint256 allocPoint; // How many allocation points assigned to this pool. STRIKEs to distribute per block.
+        uint256 lastRewardBlock; // Last block number that STRIKEs distribution occurs.
+        uint256 accRewardPerShare; // Accumulated STRIKEs per share, times 1e12. See below.
         uint256 totalBoostCount; // Total valid boosted accounts count.
         uint256 rewardEligibleSupply; // total LP supply of users which staked boost token.
     }
-    // The Annex TOKEN!
+    // The STRIKE TOKEN!
     address public strk;
-    // The vAnnex TOKEN!
+    // The vSTRIKE TOKEN!
     address public vStrk;
     // The Reward TOKEN!
     address public rewardToken;
-    // Block number when bonus ANN period ends.
+    // Block number when bonus STRIKE period ends.
     uint256 public bonusEndBlock;
-    // ANN tokens created per block.
+    // STRIKE tokens created per block.
     uint256 public rewardPerBlock;
-    // Bonus muliplier for early annex makers.
+    // Bonus muliplier for early STRIKEex makers.
     uint256 public constant BONUS_MULTIPLIER = 10;
-    // VANN minting rate
+    // VSTRIKE minting rate
     uint256 public constant VSTRK_RATE = 10;
     // Info of each pool.
     PoolInfo[] private poolInfo;
-    // Total ANN amount deposited in ANN single pool. To reduce tx-fee, not included in struct PoolInfo.
-    uint256 private lpSupplyOfAnnPool;
+    // Total STRIKE amount deposited in STRIKE single pool. To reduce tx-fee, not included in struct PoolInfo.
+    uint256 private lpSupplyOfStrikePool;
     // Info of each user that stakes LP tokens.
     mapping(uint256 => mapping(address => UserInfo)) public userInfo;
     // claimable time limit for base reward
@@ -96,7 +96,7 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
 
     // Total allocation poitns. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
-    // The block number when ANN mining starts.
+    // The block number when STRIKE mining starts.
     uint256 public startBlock;
     uint256 private accMulFactor = 1e12;
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
@@ -154,7 +154,7 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
         PoolInfo storage pool = poolInfo[_pid];
         uint256 amount;
         if (strk == address(pool.lpToken)) {
-            amount = lpSupplyOfAnnPool;
+            amount = lpSupplyOfStrikePool;
         } else {
             amount = pool.lpToken.balanceOf(address(this));
         }
@@ -220,7 +220,7 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
         );
     }
 
-    // Update the given pool's ANN allocation point. Can only be called by the owner.
+    // Update the given pool's STRIKE allocation point. Can only be called by the owner.
     function set(
         uint256 _pid,
         uint256 _allocPoint,
@@ -235,7 +235,7 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
         poolInfo[_pid].allocPoint = _allocPoint;
     }
 
-    // Update the given ANN per block. Can only be called by the owner.
+    // Update the given STRIKE per block. Can only be called by the owner.
     function setRewardPerBlock(
         uint256 speed
     ) public onlyOwner {
@@ -275,7 +275,7 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
         return initBoostCount.mul(boostMultiplierFactor).add(initialBoostMultiplier);
     }
 
-    // View function to see pending ANNs on frontend.
+    // View function to see pending STRIKEs on frontend.
     function pendingReward(uint256 _pid, address _user)
         external
         view
@@ -302,7 +302,7 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
         return baseReward.add(boostReward).add(user.accBaseReward);
     }
 
-    // View function to see pending ANNs on frontend.
+    // View function to see pending STRIKEs on frontend.
     function pendingBaseReward(uint256 _pid, address _user)
         external
         view
@@ -414,7 +414,7 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
         user.rewardDebt = user.amount.mul(pool.accRewardPerShare).div(accMulFactor);
     }
 
-    // Deposit LP tokens to Annexswap for ANN allocation.
+    // Deposit LP tokens to STRIKEswap for STRIKE allocation.
     function deposit(uint256 _pid, uint256 _amount) external {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
@@ -429,7 +429,7 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
             _amount
         );
         if (strk == address(pool.lpToken)) {
-            lpSupplyOfAnnPool = lpSupplyOfAnnPool.add(_amount);
+            lpSupplyOfStrikePool = lpSupplyOfStrikePool.add(_amount);
         }
         if (rewardEligible) {
             user.amount = user.amount.add(user.pendingAmount).add(_amount);
@@ -440,13 +440,13 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
         }
         user.rewardDebt = user.amount.mul(pool.accRewardPerShare).div(accMulFactor);
         if (_amount > 0) {
-            IVANN(vStrk).mint(msg.sender, _amount.mul(VSTRK_RATE));
+            IVStrike(vStrk).mint(msg.sender, _amount.mul(VSTRK_RATE));
         }
         user.boostedDate = block.timestamp;
         emit Deposit(msg.sender, _pid, _amount);
     }
 
-    // Withdraw LP tokens from AnnexFarm.
+    // Withdraw LP tokens from STRIKEexFarm.
     function withdraw(uint256 _pid, uint256 _amount) external nonReentrant {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
@@ -466,23 +466,23 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
         user.boostRewardDebt = 0;
         user.boostedDate = block.timestamp;
         if (strk == address(pool.lpToken)) {
-            lpSupplyOfAnnPool = lpSupplyOfAnnPool.sub(_amount);
+            lpSupplyOfStrikePool = lpSupplyOfStrikePool.sub(_amount);
         }
         if (_amount > 0) {
-            IVANN(vStrk).burnFrom(msg.sender, _amount.mul(VSTRK_RATE));
+            IVStrike(vStrk).burnFrom(msg.sender, _amount.mul(VSTRK_RATE));
         }
         pool.lpToken.safeTransfer(address(msg.sender), _amount);
         emit Withdraw(msg.sender, _pid, _amount);
     }
 
-    // transfer VANN
-    function move(uint256 _pid, address _sender, address _recipient, uint256 _vannAmount) external nonReentrant {
+    // transfer VSTRIKE
+    function move(uint256 _pid, address _sender, address _recipient, uint256 _vstrikeAmount) external nonReentrant {
         require(vStrk == msg.sender);
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage sender = userInfo[_pid][_sender];
         UserInfo storage recipient = userInfo[_pid][_recipient];
 
-        uint256 amount = _vannAmount.div(VSTRK_RATE);
+        uint256 amount = _vstrikeAmount.div(VSTRK_RATE);
 
         require(sender.amount + sender.pendingAmount >= amount, "transfer exceeds amount");
         require(block.timestamp - sender.depositedDate > unstakableTime, "not eligible to undtake");
@@ -533,14 +533,14 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
         user.accBoostReward = 0;
     }
 
-    // Safe rewardToken transfer function, just in case if rounding error causes pool to not have enough ANNs.
+    // Safe rewardToken transfer function, just in case if rounding error causes pool to not have enough STRIKEs.
     function safeRewardTransfer(address _to, uint256 _amount) internal {
         uint256 availableBal = IERC20(rewardToken).balanceOf(address(this));
 
         // Protect users liquidity
         if (strk == rewardToken) {
-            if (availableBal > lpSupplyOfAnnPool) {
-                availableBal = availableBal - lpSupplyOfAnnPool;
+            if (availableBal > lpSupplyOfStrikePool) {
+                availableBal = availableBal - lpSupplyOfStrikePool;
             } else {
                 availableBal = 0;
             }
@@ -586,7 +586,7 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
         return boostedUsers[_pid].length;
     }
 
-    // View function to see pending ANNs on frontend.
+    // View function to see pending STRIKEs on frontend.
     function pendingBoostReward(uint256 _pid, address _user)
         external
         view

@@ -101,11 +101,6 @@ Deploy the contracts to Hardhat Network:
 ```sh
 $ make deploy --network {your network you want to deploy}
 ```
-Then init some variable in contract
-```sh
-$ make init --network {your network you want to deploy}
-```
-
 
 ## Syntax Highlighting
 
