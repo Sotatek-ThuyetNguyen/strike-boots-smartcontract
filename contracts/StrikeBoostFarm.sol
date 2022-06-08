@@ -3,6 +3,7 @@
 pragma solidity 0.6.12;
 
 import "./interfaces/IBoostToken.sol";
+import "./interfaces/IStrikeBoostFarm.sol";
 import "./interfaces/IERC721Receiver.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/IVStrike.sol";
@@ -19,7 +20,7 @@ import "./libraries/ReentrancyGuard.sol";
 // distributed and the community can show to govern itself.
 //
 // Have fun reading it. Hopefully it's bug-free. God bless.
-contract StrikeBoostFarm is Ownable, ReentrancyGuard {
+contract StrikeBoostFarm is IStrikeBoostFarm, Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
     // Info of each user.
@@ -476,7 +477,7 @@ contract StrikeBoostFarm is Ownable, ReentrancyGuard {
     }
 
     // transfer VSTRIKE
-    function move(uint256 _pid, address _sender, address _recipient, uint256 _vstrikeAmount) external nonReentrant {
+    function move(uint256 _pid, address _sender, address _recipient, uint256 _vstrikeAmount) override external nonReentrant {
         require(vStrk == msg.sender);
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage sender = userInfo[_pid][_sender];
