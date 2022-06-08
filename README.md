@@ -38,81 +38,44 @@ Compile the smart contracts with Hardhat:
 $ yarn compile
 ```
 
-### TypeChain
+### Setup variable
 
-Compile the smart contracts and generate TypeChain artifacts:
+Set variables in .env file:
 
-```sh
-$ yarn typechain
+```js
+  DEPLOYER_PRIVATE_KEY=
+  INFURA_API_KEY=
+  ETHERSCAN_API_KEY=
+  STRK=
+  VSTRK=
+  NFT=
+  REWARD=
 ```
 
-### Lint Solidity
+Then go to `deployments/migrations/deploy-boost-farming.ts` to set 3 params: `rewards_per_block`, `start_bonus_block_number`, `end_bonus_block_number`
 
-Lint the Solidity code:
-
-```sh
-$ yarn lint:sol
+```js
+  await deploy("StrikeBoostFarm", {
+      from: deployer,
+      log: true,
+      args: [
+        process.env.STRK,
+        process.env.REWARD,
+        process.env.VSTRK,
+        process.env.NFT,
+        <rewards_per_block>,
+        <start_bonus_block_number>,
+        <end_bonus_block_number>
+      ]
+    })
 ```
 
-### Lint TypeScript
-
-Lint the TypeScript code:
-
-```sh
-$ yarn lint:ts
-```
-
-### Test
-
-Run the Mocha tests:
-
-```sh
-$ yarn test
-```
-
-### Coverage
-
-Generate the code coverage report:
-
-```sh
-$ yarn coverage
-```
-
-### Report Gas
-
-See the gas usage per unit test and average gas per method call:
-
-```sh
-$ REPORT_GAS=true yarn test
-```
-
-### Clean
-
-Delete the smart contract artifacts, the coverage reports and the Hardhat cache:
-
-```sh
-$ yarn clean
-```
 
 ### Deploy
 
 Deploy the contracts to Hardhat Network:
 
 ```sh
-$ make deploy --network {your network you want to deploy}
+$ make deploy network={your network you want to deploy}
 ```
 
-## Syntax Highlighting
-
-If you use VSCode, you can enjoy syntax highlighting for your Solidity code via the
-[vscode-solidity](https://github.com/juanfranblanco/vscode-solidity) extension. The recommended approach to set the
-compiler version is to add the following fields to your VSCode user settings:
-
-```json
-{
-  "solidity.compileUsingRemoteVersion": "v0.8.7+commit.e28d00a7",
-  "solidity.defaultCompiler": "remote"
-}
-```
-
-Where of course `v0.8.7+commit.e28d00a7` can be replaced with any other version.
