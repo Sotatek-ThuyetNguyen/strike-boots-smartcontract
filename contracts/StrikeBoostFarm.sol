@@ -700,7 +700,7 @@ contract StrikeBoostFarm is IStrikeBoostFarm, Ownable, ReentrancyGuard {
         require (isBoosted[_tokenId] == false, "already boosted");
 
         boostFactor.transferFrom(msg.sender, address(this), _tokenId);
-        boostFactor.updateStakeTime(_tokenId, true);
+        // boostFactor.updateStakeTime(_tokenId, true);
 
         isBoosted[_tokenId] = true;
 
@@ -786,7 +786,7 @@ contract StrikeBoostFarm is IStrikeBoostFarm, Ownable, ReentrancyGuard {
         require (isBoosted[_tokenId] == true);
 
         boostFactor.transferFrom(address(this), msg.sender, _tokenId);
-        boostFactor.updateStakeTime(_tokenId, false);
+        // boostFactor.updateStakeTime(_tokenId, false);
 
         isBoosted[_tokenId] = false;
 
